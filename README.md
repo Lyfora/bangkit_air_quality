@@ -1,6 +1,6 @@
-#Dicoding ReadMD AirQuality Analysis
+# Dicoding ReadMD AirQuality Analysis
 
-##Setup Environtment
+##S etup Environtment
 
 ```
 pip install numpy pandas scipy matplotlib seaborn jupyter streamlit scikit-learn
