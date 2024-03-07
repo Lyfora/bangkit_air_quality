@@ -20,7 +20,6 @@ st.write("Disini kita akan memberikan hasil analisis yang kami olah")
 st.subheader("Hubungan antar Variabel")
 
 # Fetching Data
-os.chdir("..")
 os.chdir("data")
 dataframes = []
 for x in os.listdir():
