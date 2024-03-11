@@ -1,13 +1,26 @@
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+import sklearn
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
 import seaborn as sns
 import numpy as np
 import os
 import datetime
+import sys
+versions = {
+    "Scikit-learn": sklearn.__version__,
+    "Pandas": pd.__version__,
+    "Matplotlib": matplotlib.__version__,
+    "Seaborn": sns.__version__,
+    "NumPy": np.__version__,
+    "Python": sys.version,
+    'Streamlit': "1.28.2",
+}
+st.write(versions)
 
 st.header("Dicoding-Bangkit-Air Quality Analysis")
 st.write("Dikerjakan oleh Axelliano Rafael Situmeang - Bangkit ID : m200d4ky1918 - Dicoding ID : lyfora")
@@ -131,8 +144,6 @@ if st.button('Tampilkan'):
 st.subheader("Grafik Polutan Udara Tiap Tahun")
 tab1, tab2, tab3 = st.tabs(['Polutan NO2', 'Polutan SO2', 'Polutan CO'])
 
-
-st.dataframe(merged_df_1)
 # st.dataframe(data=merged_df, width=500, height=150)
 grouped_df = merged_df_1.groupby(['station', 'year']).mean(
 )[['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'TEMP', 'O3']]
