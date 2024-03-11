@@ -21,8 +21,9 @@ st.write("Disini kita akan memberikan hasil analisis yang kami olah")
 st.subheader("Hubungan antar Variabel")
 
 # Fetching Data
-os.chdir('data')
-
+test = str(os.getcwd())[-4:]
+if (test != 'data'):
+    os.chdir('data')
 dataframes = []
 for x in os.listdir():
     df = pd.read_csv(x)
