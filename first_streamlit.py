@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import os
+import datetime
 
 st.header("Dicoding-Bangkit-Air Quality Analysis")
 st.write("Dikerjakan oleh Axelliano Rafael Situmeang - Bangkit ID : m200d4ky1918 - Dicoding ID : lyfora")
@@ -20,7 +21,8 @@ st.write("Disini kita akan memberikan hasil analisis yang kami olah")
 st.subheader("Hubungan antar Variabel")
 
 # Fetching Data
-os.chdir("data")
+os.chdir('data')
+
 dataframes = []
 for x in os.listdir():
     df = pd.read_csv(x)
@@ -59,8 +61,77 @@ with st.container():
 # code = """def hello():
 #     print("Hello, Streamlit!")"""
 # st.code(code, language='python')
-st.subheader("Grafik Polutan Udara tiap tahun")
+st.subheader("Grafik Polutan Secara Spesifik dari Inputan")
+station_name = merged_df_1['station'].unique()
+df = merged_df_1.groupby(['station', 'year', 'month', 'day']).mean(
+)[['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'TEMP', 'O3']].reset_index()
+df['date'] = pd.to_datetime(df[['year', 'month', 'day']])
+station = st.selectbox(label='Nama Stasiun', options=station_name)
+# date_1 = st.date_input(label='Rentang Tanggal', min_value=datetime.date(
+#     2013, 3, 1), max_value=datetime.date(2017, 2, 28))
+min_date = datetime.date(2013, 3, 1)
+max_date = datetime.date(2017, 2, 28)
+start_date = st.date_input(
+    "Select Start Date", min_value=min_date, max_value=max_date, value=min_date)
+end_date = st.date_input(
+    "Select End Date", min_value=min_date, max_value=max_date, value=max_date)
+if st.button('Tampilkan'):
+    if start_date > end_date:
+        st.error("Start date cannot be after end date. Please adjust the dates.")
+    else:
+        filtered_df = df[(df['date'] >= pd.to_datetime(start_date))
+                         & (df['date'] <= pd.to_datetime(end_date)) & (df['station'] == station)]
+        st.subheader('Grafik Polutan Stasiun {} dari {} sampai {}'.format(
+            station, start_date, end_date))
+        tab1, tab2, tab3, tab4 = st.tabs(
+            ['General', 'Polutan NO2', 'Polutan SO2', 'Polutan CO'])
+        with tab1:
+            st.write('Polutan Stasiun {} secara keseluruhan'.format(station))
+            df_gabung = filtered_df.melt(id_vars=['date'], value_vars=['NO2', 'CO', 'SO2'],
+                                         var_name='pollutant', value_name='level')
+            fig = plt.figure(figsize=(12, 6))
+            sns.lineplot(data=df_gabung, x='date',
+                         y='level', hue='pollutant', marker='o')
+            plt.title(
+                'Polutant in General for {} Station Over dates'.format(station))
+            plt.xlabel('date')
+            plt.ylabel('Level')
+            st.pyplot(fig)
+        with tab2:
+            st.write('Polutan NO2')
+            fig = plt.figure(figsize=(12, 6))
+            sns.lineplot(data=filtered_df, x='date',
+                         y='NO2', hue='station', marker='o')
+            plt.title('NO2 Levels by Station Over dates')
+            plt.xlabel('date')
+            plt.ylabel('NO2 Level')
+            st.pyplot(fig)
 
+        with tab3:
+            st.write('Polutan SO2')
+            fig = plt.figure(figsize=(12, 6))
+            sns.lineplot(data=filtered_df, x='date',
+                         y='SO2', hue='station', marker='o')
+            plt.title('SO2 Levels by Station Over dates')
+            plt.xlabel('date')
+            plt.ylabel('SO2 Level')
+            st.pyplot(fig)
+
+        with tab4:
+            st.write('Polutan CO')
+            fig = plt.figure(figsize=(12, 6))
+            sns.lineplot(data=filtered_df, x='date',
+                         y='CO', hue='station', marker='o')
+            plt.title('CO Levels by Station Over dates')
+            plt.xlabel('date')
+            plt.ylabel('CO Level')
+            st.pyplot(fig)
+
+st.subheader("Grafik Polutan Udara Tiap Tahun")
+tab1, tab2, tab3 = st.tabs(['Polutan NO2', 'Polutan SO2', 'Polutan CO'])
+
+
+st.dataframe(merged_df_1)
 # st.dataframe(data=merged_df, width=500, height=150)
 grouped_df = merged_df_1.groupby(['station', 'year']).mean(
 )[['PM2.5', 'PM10', 'NO2', 'SO2', 'CO', 'TEMP', 'O3']]
@@ -71,31 +142,34 @@ for pollutant in ['NO2', 'SO2', 'CO', 'TEMP', 'O3']:
 # st.dataframe(data=grouped_df, width=500, height=150)
 grouped_df = grouped_df.reset_index()
 
-st.write('Polutan NO2')
-fig = plt.figure(figsize=(12, 6))
-sns.lineplot(data=grouped_df, x='year', y='NO2', hue='station', marker='o')
-plt.title('NO2 Levels by Station Over Years')
-plt.xlabel('Year')
-plt.ylabel('NO2 Level')
-st.pyplot(fig)
+with tab1:
+    st.write('Polutan NO2')
+    fig = plt.figure(figsize=(12, 6))
+    sns.lineplot(data=grouped_df, x='year', y='NO2', hue='station', marker='o')
+    plt.title('NO2 Levels by Station Over Years')
+    plt.xlabel('Year')
+    plt.ylabel('NO2 Level')
+    st.pyplot(fig)
 
-st.write('Polutan SO2')
-fig = plt.figure(figsize=(12, 6))
-sns.lineplot(data=grouped_df, x='year', y='SO2', hue='station', marker='o')
-plt.title('SO2 Levels by Station Over Years')
-plt.xlabel('Year')
-plt.ylabel('SO2 Level')
-st.pyplot(fig)
+with tab2:
+    st.write('Polutan SO2')
+    fig = plt.figure(figsize=(12, 6))
+    sns.lineplot(data=grouped_df, x='year', y='SO2', hue='station', marker='o')
+    plt.title('SO2 Levels by Station Over Years')
+    plt.xlabel('Year')
+    plt.ylabel('SO2 Level')
+    st.pyplot(fig)
 
-st.write('Polutan CO')
-fig = plt.figure(figsize=(12, 6))
-sns.lineplot(data=grouped_df, x='year', y='CO', hue='station', marker='o')
-plt.title('CO Levels by Station Over Years')
-plt.xlabel('Year')
-plt.ylabel('CO Level')
-st.pyplot(fig)
+with tab3:
+    st.write('Polutan CO')
+    fig = plt.figure(figsize=(12, 6))
+    sns.lineplot(data=grouped_df, x='year', y='CO', hue='station', marker='o')
+    plt.title('CO Levels by Station Over Years')
+    plt.xlabel('Year')
+    plt.ylabel('CO Level')
+    st.pyplot(fig)
 
-st.write('Hasil Klustering K-Means PCA')
+st.subheader('Hasil Klustering K-Means PCA')
 # st.dataframe(merged_df_1.iloc[:, 5:11])
 data = merged_df_1.iloc[:, 5:11]
 scaler = StandardScaler()
